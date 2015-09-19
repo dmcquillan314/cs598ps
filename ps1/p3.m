@@ -50,24 +50,24 @@ function p3_4()
     
     figure;
     subplot(2,2,1);
-    D_1 = fspecial('disk', 12);
-    circ_25_filter = imfilter(A,D_1,'replicate');
+    D_1 = p3gaussian(25, 1);
+    circ_25_filter = uint8(convn(A,D_1));
     imshow(circ_25_filter);
         
     subplot(2,2,2);
-    D_2 = fspecial('disk', 3);
-    circ_7_filter = imfilter(A,D_2,'same');
+    D_2 = p3gaussian(7, 0.3);
+    circ_7_filter = uint8(convn(A,D_2));
     imshow(circ_7_filter);
         
     subplot(2,2,3);
     D_3 = double([ rot90(eye(20)) eye(20) ]);
     D_3 = D_3 ./ sum(sum(D_3));
-    filter_3 = imfilter(A,D_3,'same');
+    filter_3 = uint8(convn(A,D_3));
     imshow(filter_3);
     
     subplot(2,2,4);
     D_4 = ones(1,41)' .* ( 1 / 41 );
-    filter_4 = imfilter(A,D_4,'same');
+    filter_4 = uint8(convn(A,D_4));
     imshow(filter_4);
 
 end
