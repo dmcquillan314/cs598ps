@@ -12,7 +12,7 @@ function [ output_args ] = l5_39( input_args )
     cent_face_data = faces.X - repmat(avg_face, [1,N]);
     trans_cent_face_data = cent_face_data';
     
-    [eig_vec, eig_val] = eigs(cov(trans_cent_face_data), M);
+    [eig_vec, eig_val] = eig(cov(trans_cent_face_data));
     
     reconstruct = faces.X(:,11);
 
