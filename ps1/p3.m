@@ -1,9 +1,9 @@
 function p3()
-% p3_1();
+p3_1();
 p3_2();
-% p3_3();
-% p3_4();
-% p3_5();
+p3_3();
+p3_4();
+p3_5();
 end
 
 function p3_5()
@@ -89,7 +89,7 @@ function p3_3()
     ylabel('Frequency (Hz)')
 
     low_filter = fir1(48,0.48, 'low');
-    low_filter_x = filter(low_filter,1,x);
+    low_filter_x = conv(x,low_filter);
     frame_length = 512;
     frame_overlap = frame_length / 2;
     window = hammingWindow(frame_length);
@@ -102,7 +102,7 @@ function p3_3()
     ylabel('Frequency (Hz)')
     
     high_filter = fir1(48,0.48, 'high');
-    high_filter_x = filter(high_filter,1,x);
+    high_filter_x = conv(x,high_filter);
     frame_length = 512;
     frame_overlap = frame_length / 2;
     window = hammingWindow(frame_length);
@@ -116,7 +116,7 @@ function p3_3()
     ylabel('Frequency (Hz)')
 
     band_filter = fir1(48,[0.01 0.65]);
-    band_filter_x = filter(band_filter,1,x);
+    band_filter_x = conv(x,band_filter);
     frame_length = 512;
     frame_overlap = frame_length / 2;
     window = hammingWindow(frame_length);
@@ -130,7 +130,7 @@ function p3_3()
     ylabel('Frequency (Hz)')
     
     stop_filter = fir1(48,[0.35 0.65], 'stop');
-    stop_filter_x = filter(stop_filter,1,x);
+    stop_filter_x = conv(x,stop_filter);
     frame_length = 512;
     frame_overlap = frame_length / 2;
     window = hammingWindow(frame_length);
