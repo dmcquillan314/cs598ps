@@ -38,5 +38,7 @@ for j=1:N
     w(1,:) = local_neighbors;
 end
 
+D = compute_dist_floyd(w, 1:N);
+
 end
 
