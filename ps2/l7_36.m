@@ -1,5 +1,6 @@
-function [ output_args ] = l7_36( input_args )
+function l7_36()
 
+    figure;
     cities = load('cities.mat');
     D = cities.D;
     N = 18;
