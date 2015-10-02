@@ -1,4 +1,4 @@
-function [ output_args ] = l7_68_70( input_args )
+function l7_68_70()
 
 
     [data, v ] = video_data('hotlips.mp4');

@@ -1,24 +1,39 @@
-function [ output_args ] = l5_39( input_args )
-%L5_39 Summary of this function goes here
-%   Detailed explanation goes here
-    faces = l5_faces();
-    
-    N = size(faces.X,2);
-    M = 10;
-    faces.X = faces.X(:,1:N) ./ 255;
-    
-    avg_face = mean(faces.X,2);
-    
-    cent_face_data = faces.X - repmat(avg_face, [1,N]);
-    trans_cent_face_data = cent_face_data';
-    
-    [eig_vec, eig_val] = eig(cov(trans_cent_face_data));
-    
-    reconstruct = faces.X(:,11);
+function l5_39()
 
+    faces = l5_faces;
+
+    act_face = faces.X(:,11);
+    
+    rec_face_10 = reconstruct(faces, 10, 11);
+    
+    rec_face_50 = reconstruct(faces, 50, 11);
+    
     figure;
-    imshow(reshape(reconstruct, faces.M, faces.N));
+    subplot(1,3,1);
+    imshow(reshape(rec_face_10, faces.M, faces.N), []);
+    title('10 Component Estimation');
+    
+    subplot(1,3,2);
+    imshow(reshape(rec_face_50, faces.M, faces.N), []);
+    title('50 Component Estimation');
+    
+    subplot(1,3,3);
+    imshow(reshape(act_face, faces.M, faces.N), []);
+    title('Original');
 
-    eig_vec' * cent_face_data;
 end
 
+function [F] = reconstruct(faces, v, f)
+    N = size(faces.X, 2);
+
+    X = faces.X';
+    avg_face = mean(X);
+    zm_faces = X - repmat(avg_face, [N 1]);
+    
+    [F, V, W] = svd(zm_faces');
+    
+    P = V(1:v,:) * W';
+    recon = (F(:, 1:v) * P(:, f))' + avg_face;
+    
+    F = recon;
+end
