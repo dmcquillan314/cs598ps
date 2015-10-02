@@ -15,5 +15,6 @@ function main()
     l7_56;
     l7_68_70;
 
+    extra_credit;
 end
 
