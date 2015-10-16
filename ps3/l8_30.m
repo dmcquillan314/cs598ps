@@ -12,7 +12,6 @@ function l8_30(  )
     normalized = smoothed ./ max(smoothed);
     figure;
     
-    subplot(1,2,1);
     plot(d_pa);
     hold on;
     plot(normalized, '-');
