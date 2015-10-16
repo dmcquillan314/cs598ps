@@ -1,7 +1,35 @@
-function [ output_args ] = l10_42( input_args )
-%L10_42 Summary of this function goes here
-%   Detailed explanation goes here
+function l10_42( )
+    
+    figure;
+    MU1 = [1 1];
+    SIGMA1 = [0.75 0; 0 0.7];
+    MU2 = [-1 -1];
+    SIGMA2 = [0.75 0; 0 0.7];
 
-
+    D1 = probDist(MU1, SIGMA1, 40);
+    y1 = ones(40, 1);
+    D2 = probDist(MU2, SIGMA2, 40);
+    y2 = -1 * ones(40, 1);
+    
+    X = [D1; D2];
+    y = [y1; y2];
+    
+    [w, w_0] = quadprog_svm(X, y, 0.001);
+    
+    Xax = -20:20; 
+    Yax=-(w_0+Xax*w(1))/w(2);
+    
+    subplot(1,2,1);
+    hold on;
+    scatter(D1(:,1),D1(:,2))
+    scatter(D2(:,1),D2(:,2))
+    plot(Xax,Yax);
+    hold off;
+    
+    axis([ -4 4 -4 4 ]);
+        
+    res = w * X';
+    
+    subplot(1,2,2);
+    stem(res);
 end
-

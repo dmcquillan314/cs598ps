@@ -1,62 +1,61 @@
-function [ output_args ] = quadprog_svm(  )
-clear all;close all;
+function [ w, b ] = quadprog_svm( x, y, C)
 
-x = [randn(20,2);randn(20,2)+4];
-t = [repmat(-1,20,1);repmat(1,20,1)];
-% Add a bad point
-x = [x;2 1];
-t = [t;1];
-
-ma = {'ko','ks'};
-fc = {[0 0 0],[1 1 1]};
-tv = unique(t);
-figure(1); hold off
-for i = 1:length(tv)
-    pos = find(t==tv(i));
-    plot(x(pos,1),x(pos,2),ma{i},'markerfacecolor',fc{i});
-    hold on
-end
-
-N = size(x,1);
-K = x*x';
-H = (t*t').*K + 1e-5*eye(N);
-f = repmat(1,N,1);
-A = [];b = [];
-LB = repmat(0,N,1); UB = repmat(inf,N,1);
-Aeq = t';beq = 0;
-
-
-warning off
-
-Cvals = [10 5 2 1 0.5 0.1 0.05 0.01];
-for cv = 1:length(Cvals);
-    UB = repmat(Cvals(cv),N,1);
-    % Following line runs the SVM
-    alpha = quadprog(H,-f,A,b,Aeq,beq,LB,UB);
-    % Compute the bias
-    fout = sum(repmat(alpha.*t,1,N).*K,1)';
-    pos = find(alpha>1e-6);
-    bias = mean(t(pos)-fout(pos));
-    figure(1);hold off
-    pos = find(alpha>1e-6);
-    plot(x(pos,1),x(pos,2),'ko','markersize',15,'markerfacecolor',[0.6 0.6 0.6],...
-        'markeredgecolor',[0.6 0.6 0.6]);
-    hold on
-    for i = 1:length(tv)
-        pos = find(t==tv(i));
-        plot(x(pos,1),x(pos,2),ma{i},'markerfacecolor',fc{i});
+    % some normalization of inputs
+    [n,m] = size(x);
+    if n < m
+        x = x';
+        [n,m] = size(x);
     end
+    
+    if sum(y == 0) > 0
+        y(y == 0) = -1;
+    end
+    
+    if isequal(nargin, 2) 
+        C = 0;
+    end
+    
+    z = y(:);  % must be column vector
 
-    xp = xlim;
-    yl = ylim;
-    % Because this is a linear SVM, we can compute w and plot the decision
-    % boundary exactly.
-    w = sum(repmat(alpha.*t,1,2).*x,1)';
-    yp = -(bias + w(1)*xp)/w(2);
-    plot(xp,yp,'k','linewidth',2);
-    ylim(yl);
-    ti = sprintf('C: %g',Cvals(cv));
-    title(ti);
-end
+
+    % using kuhn tucker theorem convert problem to
+    % maximize L(alpha) = 
+    %           sum(1,n)(alpha_i) -
+    %           1/2*alpha'Halpha
+    % constrained to alpha_i >= 0 and sum(1,n)(alpha_i*z_i) = 0
+    
+    H = (x * x') .* (z * z');
+    
+    % matlab expects quadratic programming to be stated in canonical
+    % (standard) form which is 
+    % minimize P(x) = 0.5x'Hx + f'x
+    % constrained to Ax <= a and Bx = b
+    % where A, B, H are n by n matrices and f, a, b are vectors
+    
+    % convert optimization problem to canonical form by multiplying by -1
+    
+    f = -1 * ones(n,1);
+    
+    % then we have the following optimization problem
+    % minimize L(alpha) = f'alpha + 1/2alpha'Halpha
+    
+    % first constraint is alpha_i >= 0
+    A = -1 * eye(n);
+    a = zeros(n,1);
+    
+    % second constraint is sum(1,n)(alpha_i*z_i) = 0
+    B = [ z'; zeros(n-1,n) ];
+    b = zeros(n,1);
+    
+    alpha = quadprog(H+eye(n)*C,f,A,a,B,b);
+    
+    % find w  using w = sum(1,n)(alpha_i*z_i*x_i = (alpha.*z)'*x
+    w = (alpha .* z)' * x;
+    
+    nz_ind = find(alpha>1e-5);
+    fnz_ind = nz_ind(1);
+    
+    w_0 = 1/z(fnz_ind) - w * x(fnz_ind,:)';
+    b = w_0;
 end
 
