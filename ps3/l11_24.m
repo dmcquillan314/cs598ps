@@ -1,4 +1,4 @@
-function [ output_args ] = l11_24( input_args )
+function l11_24()
 plot_knn(100,100,3, 'easy classification problem');
 plot_knn(100,100,2, 'harder classification problem');
 plot_knn(100,100,1, 'really hard classification problem');

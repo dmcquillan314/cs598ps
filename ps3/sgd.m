@@ -1,48 +1,48 @@
-function [ w, theta ] = sgd( data, classifications, eta, max_iter )
+function [ w, b ] = sgd( data, classifications, eta, max_iter )
 
     if nargin < 4
-        max_iter = 100;
+        max_iter = 1800;
     end
     
     y = classifications(:); % assure it is a column vector
+    
+    [n,m] = size(data);
+    
+    if(n < m)
+        % normalize so that samples are rows
+        data = data';
+        [n,m] = size(data);
+    end
     
     if sum(classifications == 0) > 0
         y(classifications == 0) = -1;
     end
 
-    [n,d] = size(data);
-    w = ones(n,1);    
-    w = w(:);
-        
-    % set up bias weight
-    w = [ w; 0.0 ];
-    data = [ data; ones(1, d) ];
-
     it = 0;
-    mse = 0;
+    diff = -1;
     
-    while it < max_iter
-             
-        mse = 0.0;
+    threshold = 0.005;
+    w = randn(m+1,1);
+    
+    while(it < max_iter && (isequal(diff,-1) || diff > threshold))
         
-        for j=1:d
-            x_i = data(:,j);
-            x_i = x_i(:);
+        wlast = w;
+        
+        for j = 1:n
+            X = [data(j,:).'; 1];
             
-            wc = w;
-            w = wc - eta * (x_i * (wc' * x_i - y(j)));
-            mse = mse + (w' * x_i - y(j)) ^ 2;
-
+            if(~(sign(w.'*X) == y(j)))
+                w = w + eta * y(j) * X;
+            end
         end
         
-        mse = mse / d;
-        
-        %disp(mse);
+        diff = norm(wlast - w);
         
         it = it + 1;
+        
     end
-
-    theta = w(end);
+    
+    b = w(end);
     w = w(1:end-1);
 end
 
